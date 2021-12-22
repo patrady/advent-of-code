@@ -1,0 +1,26 @@
+{
+  "name": "advent-of-code",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrady/advent-of-code.git"
+  },
+  "keywords": [
+    "continuous-learning"
+  ],
+  "author": "Patrick Brady",
+  "license": "MIT",
+  "homepage": "https://github.com/patrady/advent-of-code#readme",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.5",
+    "@babel/preset-env": "^7.16.5",
+    "@babel/preset-typescript": "^7.16.5",
+    "@types/jest": "^27.0.3",
+    "babel-jest": "^27.4.5",
+    "jest": "^27.4.5"
+  }
+}
