@@ -4,62 +4,76 @@ export default class DaySix {
   constructor(input: string) {
     this.fish = input
       .split(",")
-      .map((timer) => new Lanternfish(parseInt(timer)));
+      .map((timer) => new AdultLanternfish(parseInt(timer)));
   }
 
   partOne() {
     const school = new School(this.fish);
 
-    school.simulate(80);
-    return school.fish.length;
+    return school.simulate(80);
   }
 
-  partTwo() {}
+  partTwo() {
+    const school = new School(this.fish);
+
+    return school.simulate(256);
+  }
 }
 
+type Timer = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
 class School {
-  fish: Lanternfish[];
+  fish: { [timer in Timer]: number } = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+  };
 
   constructor(fish: Lanternfish[]) {
-    this.fish = fish;
+    fish.forEach((f) => {
+      this.fish[f.timer] += 1;
+    });
   }
 
   simulate(days: number) {
     for (let i = 0; i < days; i += 1) {
-      this.fish.push(
-        ...this.fish.reduce<Lanternfish[]>((newSchoolOfFish, fish) => {
-          const newFish = fish.nextDay();
-          if (newFish) {
-            newSchoolOfFish.push(newFish);
-          }
-
-          return newSchoolOfFish;
-        }, [])
-      );
+      Object.entries(this.fish).forEach(([_day, value]) => {
+        const day = parseInt(_day);
+        this.fish[day] -= value;
+        if (day === 0) {
+          this.fish[BabyLanternfish.timer] += value;
+          this.fish[AdultLanternfish.timer] += value;
+        } else {
+          this.fish[day - 1] += value;
+        }
+      });
     }
+
+    return Object.values(this.fish).reduceRight(
+      (total, value) => total + value,
+      0
+    );
   }
 }
 
-class Lanternfish {
+abstract class Lanternfish {
   timer: number;
-  static ADULT_TIMER = 6;
-  static BABY_TIMER = 8;
 
-  constructor(timer: number = Lanternfish.BABY_TIMER) {
+  constructor(timer: number) {
     this.timer = timer;
   }
+}
 
-  nextDay(): Lanternfish | undefined {
-    if (this.timer === 0) {
-      return this.reproduce();
-    }
+class AdultLanternfish extends Lanternfish {
+  static timer = 6;
+}
 
-    this.timer -= 1;
-  }
-
-  reproduce() {
-    this.timer = Lanternfish.ADULT_TIMER;
-
-    return new Lanternfish();
-  }
+class BabyLanternfish extends Lanternfish {
+  static timer = 8;
 }

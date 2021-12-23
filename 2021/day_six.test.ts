@@ -21,16 +21,16 @@ describe("DaySix", () => {
   });
 
   describe("partTwo", () => {
-    xit("works with sample input", () => {
+    it("works with sample input", () => {
       const program = new DaySix(sampleInput);
 
-      expect(program.partTwo()).toEqual(12);
+      expect(program.partTwo()).toEqual(26984457539);
     });
 
-    xit("works with real input", () => {
+    it("works with real input", () => {
       const program = new DaySix(realInput);
 
-      expect(program.partTwo()).toEqual(4655);
+      expect(program.partTwo()).toEqual(1728611055389);
     });
   });
 });
