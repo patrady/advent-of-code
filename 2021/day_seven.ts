@@ -2,32 +2,38 @@ export default class DaySeven {
   positions: number[];
 
   constructor(input: string) {
-      this.positions = input.split(',').map(i => parseInt(i));
+    this.positions = input.split(",").map((i) => parseInt(i));
   }
 
   partOne() {
-    const min = Math.min(...this.positions);
-    const max = Math.max(...this.positions);
-
-    return new FuelCost(this.positions).optimize(min, max);
+    return new FuelCost(this.positions).linear().optimize();
   }
 
-  partTwo() {}
+  partTwo() {
+    return new FuelCost(this.positions).triangular().optimize();
+  }
 }
 
 class FuelCost {
-  positions: number[];
+  public positions: number[];
+  private max: number;
+  private min: number;
+  private strategy: (center: number) => number;
 
   constructor(positions: number[]) {
     this.positions = positions;
+    this.min = Math.min(...positions);
+    this.max = Math.max(...positions);
+
+    return this;
   }
 
-  public optimize(min: number, max: number) {
+  public optimize() {
     let fuelCost = Number.POSITIVE_INFINITY;
 
-    for (let i = min; i <= max; i += 1) {
-      const value = this.calculate(i);
-      
+    for (let i = this.min; i <= this.max; i += 1) {
+      const value = this.strategy(i);
+
       if (value < fuelCost) {
         fuelCost = value;
       }
@@ -36,10 +42,23 @@ class FuelCost {
     return fuelCost;
   }
 
-  public calculate(center: number) {
-    return this.positions.reduceRight(
-      (cost, position) => cost + Math.abs(position - center),
-      0
-    );
+  public linear() {
+    this.strategy = (center: number) =>
+      this.positions.reduceRight(
+        (cost, position) => cost + Math.abs(position - center),
+        0
+      );
+
+    return this;
+  }
+
+  public triangular() {
+    this.strategy = (center: number) =>
+      this.positions.reduceRight((cost, position) => {
+        const distance = Math.abs(position - center);
+        return cost + (distance * (distance + 1)) / 2;
+      }, 0);
+
+    return this;
   }
 }
