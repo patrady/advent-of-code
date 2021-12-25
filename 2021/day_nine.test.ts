@@ -123,16 +123,16 @@ describe("DayNine", () => {
     });
   
     describe("partTwo", () => {
-      xit("works with the sample input", () => {
+      it("works with the sample input", () => {
         const program = new DayNine(sampleInput);
   
-        expect(program.partTwo()).toEqual(1924);
+        expect(program.partTwo()).toEqual(1134);
       });
   
-      xit("works with the real input", () => {
+      it("works with the real input", () => {
         const program = new DayNine(realInput);
   
-        expect(program.partTwo()).toEqual(12738);
+        expect(program.partTwo()).toEqual(1558722);
       });
     })
   });

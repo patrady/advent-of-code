@@ -1,10 +1,16 @@
+import sumBy from "lodash.sumby";
+
+type Map = Point[][];
+
 export default class DayNine {
-  map: number[][];
+  map: Map;
 
   constructor(input: string) {
     this.map = input
       .split("\n")
-      .map((line) => line.split("").map((num) => parseInt(num)));
+      .map((line, row) =>
+        line.split("").map((num, col) => new Point(row, col, parseInt(num)))
+      );
   }
 
   partOne() {
@@ -13,32 +19,39 @@ export default class DayNine {
     return heightMap.riskLevel();
   }
 
-  partTwo() {}
+  partTwo() {
+    const heightMap = new Heightmap(this.map);
+
+    return heightMap.largestBasinSizes();
+  }
 }
 
 class Heightmap {
-  map: number[][];
+  constructor(public map: Map) {}
 
-  constructor(map: number[][]) {
-    this.map = map;
+  public riskLevel(): number {
+    return sumBy(this.lowPoints(), (point) => point.riskValue());
   }
 
-  riskLevel(): number {
-    const lowPoints = this.lowPoints();
+  public largestBasinSizes(): number {
+    const basinSizes = this.basinSizes();
 
-    return lowPoints.reduceRight((sum, num) => sum + (num + 1), 0);
+    return basinSizes
+      .sort((a, b) => b - a)
+      .slice(0, 3)
+      .reduceRight((total, size) => total * size, 1);
   }
 
-  lowPoints(): number[] {
-    const lowPoints = [];
+  private lowPoints(): Point[] {
+    const lowPoints: Point[] = [];
 
     for (let row = 0; row < this.map.length; row += 1) {
       for (let col = 0; col < this.map[row].length; col += 1) {
-        const value = this.map[row][col];
-        const adjacents = this.adjacents(row, col);
+        const point = this.map[row][col];
+        const adjacents = new Traversal(this.map, point).adjacents();
 
-        if (adjacents.every((num) => value < num)) {
-          lowPoints.push(value);
+        if (adjacents.every((adjacent) => point.value < adjacent.value)) {
+          lowPoints.push(point);
         }
       }
     }
@@ -46,44 +59,103 @@ class Heightmap {
     return lowPoints;
   }
 
-  private adjacents(row: number, col: number) {
-    return [
-      this.adjacentTop(row, col),
-      this.adjacentBottom(row, col),
-      this.adjacentLeft(row, col),
-      this.adjacentRight(row, col),
-    ].filter((val) => val !== undefined);
+  private basinSizes() {
+    return this.lowPoints().reduce<number[]>((sizes, point) => {
+      const map = this.copyOfMap();
+      return [...sizes, this.basin(map, point)];
+    }, []);
   }
 
-  private adjacentLeft(row: number, col: number) {
-    if (col === 0) {
+  private basin(map: Map, point: Point): number {
+    if (!point.isValidBasin()) {
+      return 0;
+    }
+
+    point.invalidate();
+
+    return (
+      1 +
+      sumBy(new Traversal(map, point).adjacents(), (adjacent) =>
+        this.basin(map, adjacent)
+      )
+    );
+  }
+
+  private copyOfMap() {
+    return this.map.map((row) => row.slice());
+  }
+}
+
+class Traversal {
+  constructor(public map: Map, public point: Point) {}
+
+  public adjacents() {
+    return [this.top(), this.bottom(), this.left(), this.right()].filter(
+      (val) => val !== undefined
+    );
+  }
+
+  public hasLeft() {
+    return this.point.col > 0;
+  }
+
+  public left() {
+    if (!this.hasLeft()) {
       return undefined;
     }
 
-    return this.map[row][col - 1];
+    return this.map[this.point.row][this.point.col - 1];
   }
 
-  private adjacentRight(row: number, col: number) {
-    if (col === this.map[row].length - 1) {
+  public hasRight() {
+    return this.point.col < this.map[this.point.row].length - 1;
+  }
+
+  public right() {
+    if (!this.hasRight()) {
       return undefined;
     }
 
-    return this.map[row][col + 1];
+    return this.map[this.point.row][this.point.col + 1];
   }
 
-  private adjacentBottom(row: number, col: number) {
-    if (row === this.map.length - 1) {
+  public hasBottom() {
+    return this.point.row < this.map.length - 1;
+  }
+
+  public bottom() {
+    if (!this.hasBottom()) {
       return undefined;
     }
 
-    return this.map[row + 1][col];
+    return this.map[this.point.row + 1][this.point.col];
   }
 
-  private adjacentTop(row: number, col: number) {
-    if (row === 0) {
+  public hasTop() {
+    return this.point.row > 0;
+  }
+
+  public top() {
+    if (!this.hasTop()) {
       return undefined;
     }
 
-    return this.map[row - 1][col];
+    return this.map[this.point.row - 1][this.point.col];
+  }
+}
+
+class Point {
+  constructor(public row: number, public col: number, public value: number) {}
+
+  public riskValue() {
+    return this.value + 1;
+  }
+
+  public isValidBasin() {
+    return this.value !== 9;
+  }
+
+  public invalidate() {
+    this.value = 9;
   }
 }
