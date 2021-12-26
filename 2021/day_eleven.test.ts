@@ -38,16 +38,16 @@ describe("DayEleven", () => {
     });
   
     describe("partTwo", () => {
-      xit("works with the sample input", () => {
+      it("works with the sample input", () => {
         const program = new DayEleven(sampleInput);
   
         expect(program.partTwo()).toEqual(195);
       });
   
-      xit("works with the real input", () => {
+      it("works with the real input", () => {
         const program = new DayEleven(realInput);
   
-        expect(program.partTwo()).toEqual(12738);
+        expect(program.partTwo()).toEqual(222);
       });
     })
   });

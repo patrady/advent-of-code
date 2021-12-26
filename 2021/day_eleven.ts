@@ -22,25 +22,55 @@ export default class DayEleven {
     return new Cave(this.floor).navigate(iterations).getFlashes();
   }
 
-  partTwo() {}
+  partTwo() {
+    return new Cave(this.floor)
+      .navigateUntilAllFlashAtSameTime()
+      .getIterations();
+  }
 }
 
 class Cave {
   private _numberOfFlashes = 0;
+  private _iterations = 0;
 
   constructor(public floor: Floor) {}
 
-  navigate(iterations: number) {
+  navigate(iterations: number = 1) {
     for (let iteration = 0; iteration < iterations; iteration += 1) {
       this.iterateOverFloor((point) => point.value.resetFlash());
-      this.iterateOverFloor(point => this.triggerSpot(point));
+      this.iterateOverFloor((point) => this.triggerSpot(point));
+      this.incrementIterations();
     }
+
+    return this;
+  }
+
+  navigateUntilAllFlashAtSameTime() {
+    do {
+      this.navigate();
+    } while (!this.isCaveLitUp());
 
     return this;
   }
 
   getFlashes() {
     return this._numberOfFlashes;
+  }
+
+  getIterations() {
+    return this._iterations;
+  }
+
+  private isCaveLitUp() {
+    let isAllFlashed = true;
+
+    this.iterateOverFloor((point) => {
+      if (!point.value.hasFlashed()) {
+        isAllFlashed = false;
+      }
+    });
+
+    return isAllFlashed;
   }
 
   private iterateOverFloor(hook: (point: Point<Octopus>) => void) {
@@ -71,6 +101,10 @@ class Cave {
 
   private incrementFlashes() {
     this._numberOfFlashes += 1;
+  }
+
+  private incrementIterations() {
+    this._iterations += 1;
   }
 
   private printFloor() {
