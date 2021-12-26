@@ -37,8 +37,8 @@ class Cave {
 
   navigate(iterations: number = 1) {
     for (let iteration = 0; iteration < iterations; iteration += 1) {
-      this.iterateOverFloor((point) => point.value.resetFlash());
-      this.iterateOverFloor((point) => this.triggerSpot(point));
+      this.resetFlashes();
+      this.iterateOverFloor((point) => this.triggerOctopus(point));
       this.incrementIterations();
     }
 
@@ -59,6 +59,10 @@ class Cave {
 
   getIterations() {
     return this._iterations;
+  }
+
+  private resetFlashes() {
+    this.iterateOverFloor((point) => point.value.resetFlash());
   }
 
   private isCaveLitUp() {
@@ -82,7 +86,7 @@ class Cave {
     }
   }
 
-  private triggerSpot(point: Point<Octopus>) {
+  private triggerOctopus(point: Point<Octopus>) {
     if (point.value.hasFlashed()) {
       return;
     }
@@ -95,7 +99,7 @@ class Cave {
 
       new DiagonalTraversal(this.floor, point)
         .adjacents()
-        .forEach((adjacent) => this.triggerSpot(adjacent));
+        .forEach((octopus) => this.triggerOctopus(octopus));
     }
   }
 
