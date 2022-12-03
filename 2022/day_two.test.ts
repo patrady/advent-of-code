@@ -2528,9 +2528,9 @@ describe("Day One", () => {
     });
   });
 
-  xdescribe("Part 2", () => {
+  describe("Part 2", () => {
     it("returns the right output", () => {
-      expect(DayTwo.partTwo(sampleInput)).toEqual(12);
+      expect(DayTwo.partTwo(realInput)).toEqual(45);
     })
   })
 });
