@@ -2522,19 +2522,15 @@ C Y
 B Z`;
 
 describe("Day One", () => {
-  xdescribe("Part 1", () => {
+  describe("Part 1", () => {
     it("returns the right output", () => {
-      const dayTwo = DayTwo.parsePart1(realInput);
-
-      expect(dayTwo.partOne()).toEqual(12458);
+      expect(DayTwo.partOne(realInput)).toEqual(12458);
     });
   });
 
   xdescribe("Part 2", () => {
     it("returns the right output", () => {
-      const dayTwo = DayTwo.parsePart1(sampleInput);
-
-      expect(dayTwo.partTwo()).toEqual(45000);
+      expect(DayTwo.partTwo(sampleInput)).toEqual(12);
     })
   })
 });

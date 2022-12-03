@@ -1,31 +1,35 @@
 export class DayTwo {
-  public static parsePart1(input: string): DayTwo {
-    const matches = input.split("\n").map((line) => {
-      const [opponent, me] = line.split(" ");
+  private static parse(input: string, callback: (args: string[]) => Match) {
+    return input.split("\n").map((line) => callback(line.split(" ")));
+  }
 
-      return new Match(Option.for(opponent), Option.for(me));
+  public static partOne(input: string): number {
+    const matches = DayTwo.parse(
+      input,
+      ([opponent, me]) => new Match(Option.for(opponent), Option.for(me))
+    );
+
+    return matches.reduce((sum, match) => sum + match.play(), 0);
+  }
+
+  public static partTwo(input: string) {
+    const matches = DayTwo.parse(input, ([opp, outcome]) => {
+      const opponent = Option.for(opp);
+
+      switch (outcome) {
+        case "X":
+          return new Match(opponent, opponent.getBeats());
+        case "Y":
+          return new Match(opponent, opponent);
+        case "Z":
+          return new Match(opponent, opponent.getLoses());
+        default:
+          return new Match(opponent, opponent);
+      }
     });
 
-    return new DayTwo(matches);
+    return matches.reduce((sum, match) => sum + match.play(), 0);
   }
-
-  public static parsePart2(input: string): DayTwo {
-    const matches = input.split("\n").map((line) => {
-      const [opponent, outcome] = line.split(" ");
-
-      return new Match(Option.for(opponent), null);
-    });
-
-    return new DayTwo(matches);
-  }
-
-  constructor(public matches: Match[]) {}
-
-  public partOne() {
-    return this.matches.reduce((sum, match) => sum + match.play(), 0);
-  }
-
-  public partTwo() {}
 }
 
 class Match {
@@ -102,11 +106,11 @@ class Option {
     return this.value === option.value;
   }
 
-  private getBeats() {
+  public getBeats() {
     return Option.ROUND_ROBIN[this.index - 1];
   }
 
-  private getLoses() {
+  public getLoses() {
     return Option.ROUND_ROBIN[this.index + 1];
   }
 }
